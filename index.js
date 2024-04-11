@@ -52,7 +52,8 @@ app.get('/auth/upstox/callback', async (req, res) => {
         
         const accessToken = tokenResponse.data.access_token;
 
-        console.log("Access Token" + accessToken)
+        console.log("Access Token " + accessToken)
+        console.log("-------------------")
 
         
         const userResponse = await axios.get('https://api.upstox.com/v2/user/profile', {
@@ -71,6 +72,28 @@ app.get('/auth/upstox/callback', async (req, res) => {
         res.status(500).send('Authentication error');
     }
 });
+
+app.get('/holdings', async (req,res) => {
+    try {
+        const accessToken = req.headers.authorization.split(' ')[1];
+        console.log("Access Token1 " + accessToken)
+
+        const holdingsResponse = await axios.get('https://api.upstox.com/v2/portfolio/long-term-holdings', {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                Accept: 'application/json'
+            }
+        })
+
+        console.log("Holdings Response " + holdingsResponse)
+
+        const holdingsData = holdingsResponse.data;
+        res.json(holdingsData);
+    } catch (error) {
+        console.error('Error fetching holdings:', error.response ? error.response.data : error.message);
+        res.status(500).send('Error fetching holdings');
+    }
+})
 
 
 app.listen(PORT, () => {
